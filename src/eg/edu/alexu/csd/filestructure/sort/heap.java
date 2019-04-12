@@ -6,32 +6,32 @@ import java.util.Collection;
 import java.util.Iterator;
 
 
-public class heap implements IHeap {
-    private node root;
+public class Heap implements IHeap {
+    private Node root;
     private ArrayList<INode> heap =new ArrayList<>();
     private int size=0;
 
-    private class node <T extends Comparable<T>> implements INode {
+    private class Node <T extends Comparable<T>> implements INode {
         int index;
         private T value;
 
 
-        public node(int index){
+        public Node(int index){
             this.index=index;
         }
 
         @Override
         public INode getLeftChild() {
-            if(2*index+1>=size){
+            if(2*index>size){
                 return null;
-            }return heap.get(2*index+1);
+            }return heap.get(2*index);
         }
 
         @Override
         public INode getRightChild() {
-            if(2*index>=size){
+            if(2*index+1>size){
                 return null;
-            }return heap.get(2*index);
+            }return heap.get(2*index+1);
         }
 
         @Override
@@ -54,11 +54,10 @@ public class heap implements IHeap {
 
     }
 
-    public heap()
+    public Heap()
     {
-        node n = new node(0);
-        n.setValue(Integer.MAX_VALUE);
-        heap.add(n);//.setValue(Integer.MIN_VALUE));
+       
+        heap.add(null);//.setValue(Integer.MIN_VALUE));
     }
 
     @Override
@@ -75,24 +74,35 @@ public class heap implements IHeap {
     }
 
     @Override
-    public void heapify(INode node) {
+    public void heapify(INode Node) {
+    	if(Node==null)
+    		return;
         Comparable larger;
-        Comparable l = node.getLeftChild().getValue();
-        Comparable r =  node.getLeftChild().getValue();
-        if(!(l.compareTo(size)>0)&&l.compareTo(node.getValue())>0){
+        Comparable l = null;
+        Comparable r = null;
+        if(Node.getLeftChild()!=null) {
+        	l = Node.getLeftChild().getValue();
+        }if(Node.getRightChild()!=null) {
+        	r = Node.getRightChild().getValue();
+        }
+        if(Node.getLeftChild()!=null&&l.compareTo(Node.getValue())>0){
             larger=l;
         }else{
-            larger=node.getValue();
+            larger=Node.getValue();
         }
-        if(!(r.compareTo(size)>0)&& r.compareTo(larger)>0){
+        if(Node.getRightChild()!=null&&r.compareTo(larger)>0){
             larger=r;
-        }if(larger !=  node.getValue()){
-            INode n=new node<>(0);
-            n.setValue(larger);
-            swap(n, node);
-            heapify(node);
+        }if(larger !=  Node.getValue()){
+        	if(larger==l) {
+        		swap(Node.getLeftChild(),Node);
+        		Node=Node.getLeftChild();
+        	}else {
+        		swap(Node.getRightChild(),Node);
+        		Node=Node.getRightChild();
+        	}
+        	
+        	heapify(Node);
         }
-
     }
 
     @Override
@@ -100,18 +110,27 @@ public class heap implements IHeap {
         if(this.size<1){
             return null;
         }
-        Comparable max= (Comparable) heap.get(1);
-        heap.set(1,heap.get(size--));
+        Comparable max= (Comparable) heap.get(1).getValue();
+        swap(heap.get(1),heap.get(size--));
         heapify(heap.get(1));
         return max;
     }
 
     @Override
     public void insert(Comparable element) {
-        heap.set(++size, (INode) element);
+    	if(element==null)
+    		return;
+        INode n=new Node(++size);
+        n.setValue(element);
+        heap.add(size, n);
         int current = size;
+        if(size==1)
+        	return;
         while (heap.get(current).getValue().compareTo(heap.get(current).getParent().getValue())>0){
             swap(heap.get(current),heap.get(current).getParent());
+            if(current/2==1)
+            	return;
+            current/=2;
         }
 
     }
@@ -119,14 +138,20 @@ public class heap implements IHeap {
     @Override
     public void build(Collection unordered) {
         //TODO check the complexity
-        if(unordered.size()>0){
-            root.setValue(1);
+        if(unordered!=null&&unordered.size()>0){
+        	this.heap=new ArrayList<>();
+        	Node n = new Node(0);
+            n.setValue(Integer.MAX_VALUE);
+            heap.add(n);//.setValue(Integer.MIN_VALUE));
+        }else {
+        	this.heap=new ArrayList<>();
+        	size=0;
+        	return;
         }
-        this.heap=new ArrayList<>();
         int i=1;
         Iterator itr=unordered.iterator();
         while(itr.hasNext()){
-            node n=new node(i++);
+            Node n=new Node(i++);
             n.setValue((Comparable) itr.next());
             heap.add(n);
         }
@@ -136,7 +161,7 @@ public class heap implements IHeap {
         }
     }
 
-    // Function to swap two nodes of the heap
+    // Function to swap two Nodes of the heap
     private void swap(INode fpos, INode spos)
     {
         Comparable tmp;
