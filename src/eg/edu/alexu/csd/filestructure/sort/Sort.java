@@ -7,12 +7,12 @@ public class Sort<T extends Comparable<T>> implements ISort {
 
     @Override
     public IHeap heapSort(ArrayList unordered) {
-        Heap heap = new Heap();
+        IHeap heap = new Heap();
         ArrayList<Comparable> ans = new ArrayList<>();
         if (unordered != null) {
             int n = unordered.size();
             heap.build(unordered);
-            heap.sort();
+            ((Heap) heap).sort();
         }
         return heap;
     }

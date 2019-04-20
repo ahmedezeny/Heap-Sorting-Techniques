@@ -97,6 +97,7 @@ public class Heap implements IHeap {
         }
         if (Node.getLeftChild() != null && l.compareTo(Node.getValue()) > 0) {
             larger = l;
+
         } else {
             larger = Node.getValue();
         }
